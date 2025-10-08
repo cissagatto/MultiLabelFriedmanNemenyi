@@ -44,18 +44,59 @@ FolderRoot = "~/MultiLabelFriedmanNemenyi"
 FolderScripts = "~/MultiLabelFriedmanNemenyi/R"
 
 
-if (!require("devtools")) {
-  install.packages("devtools")
-  }
-devtools::install_github("b0rxa/scmamp")
 
-library(stringr)
-library(scmamp)
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(openxlsx)
-library(writexl)
+##############################################################################
+# Helper function: automatically install and load required packages
+##############################################################################
+
+install_and_load <- function(packages) {
+  for (pkg in packages) {
+    if (!require(pkg, character.only = TRUE)) {
+      message(paste0("📦 Installing package: ", pkg))
+      install.packages(pkg, dependencies = TRUE)
+      library(pkg, character.only = TRUE)
+    } else {
+      message(paste0("✅ Package already installed: ", pkg))
+      library(pkg, character.only = TRUE)
+    }
+  }
+}
+
+
+
+
+##############################################################################
+# List of required packages
+##############################################################################
+
+required_packages <- c(
+  "devtools",
+  "stringr",
+  "scmamp",
+  "ggplot2",
+  "dplyr",
+  "tidyr",
+  "openxlsx",
+  "writexl"
+)
+
+
+
+##############################################################################
+# Install and load all packages
+##############################################################################
+install_and_load(required_packages)
+
+
+
+##############################################################################
+# Install scmamp from GitHub if not available on CRAN
+##############################################################################
+if (!require("scmamp", character.only = TRUE)) {
+  message("📦 Installing scmamp from GitHub...")
+  devtools::install_github("b0rxa/scmamp")
+  library(scmamp)
+}
 
 
 

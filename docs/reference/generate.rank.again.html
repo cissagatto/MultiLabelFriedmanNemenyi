@@ -121,7 +121,8 @@ reverse order; otherwise, it saves them in the original order.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Generate and save rankings</span></span></span>
 <span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">generate.rank.again</span><span class="op">(</span><span class="va">type</span>, <span class="va">source.folder</span>, <span class="va">destination.folder</span>, <span class="va">file.names</span>, <span class="va">names.list</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in generate.rank.again(type, source.folder, destination.folder,     file.names, names.list):</span> could not find function "generate.rank.again"</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>cannot open file 'path/to/source/file1.csv': No such file or directory</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in file(file, "rt"):</span> cannot open the connection</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -137,7 +138,7 @@ reverse order; otherwise, it saves them in the original order.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
       </footer></div>
