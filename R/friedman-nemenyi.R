@@ -137,13 +137,23 @@ friedman.nemenyi <- function(data, save, measure.name,
   
   # Check if the data is valid for density plotting
   if (!is.null(data) && nrow(data) > 0 && !all(is.na(data))) {
-    p.density.plot.file <- file.path(save, paste0(measure.name, "-density.pdf"))
-    pdf(p.density.plot.file, width = 10, height = 6)
-    print(plotDensities(data = data))
-    dev.off()
-    gc()
+    
+    # Remove NAs from each column
+    data.cleaned <- as.data.frame(lapply(data, function(x) x[!is.na(x)]))
+    
+    # Check if there is still data left to plot
+    if (all(sapply(data.cleaned, function(x) length(x) == 0))) {
+      warning("After removing missing values, there is not enough data left to generate the density plot.")
+    } else {
+      p.density.plot.file <- file.path(save, paste0(measure.name, "-density.pdf"))
+      pdf(p.density.plot.file, width = 10, height = 6)
+      print(plotDensities(data = data.cleaned))
+      dev.off()
+      gc()
+    }
+    
   } else {
-    warning("Data is empty or contains only NA values; no density plot will be generated.")
+    warning("Data is empty or contains only missing values; the density plot will not be generated.")
   }
   
   # Inform the user where the files have been saved
