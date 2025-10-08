@@ -173,8 +173,8 @@ friedman.nemenyi <- function(data, save, measure.name,
 #' @export
 #'
 #' @examples
-#' generate.boxplots(data = results_data, methods = c("Method1", "Method2"), save.dir = "output_directory")
-generate.boxplots <- function(data, 
+#' generate.boxplots.1(data = results_data, methods = c("Method1", "Method2"), save.dir = "output_directory")
+generate.boxplots.1 <- function(data, 
                               methods, 
                               save.dir,
                               measure.name,
@@ -228,8 +228,8 @@ generate.boxplots <- function(data,
 #' @export
 #'
 #' @examples
-#' generate.boxplots(data = results_data, methods = c("Method1", "Method2"), save.dir = "output_directory")
-generate.boxplots <- function(data, methods, save.dir) {
+#' generate.boxplots.2(data = results_data, methods = c("Method1", "Method2"), save.dir = "output_directory")
+generate.boxplots.2 <- function(data, methods, save.dir) {
   # Convert the data from wide format to long format for ggplot
   long.data <- data %>%
     pivot_longer(cols = all_of(methods), names_to = "method", values_to = "performance")
