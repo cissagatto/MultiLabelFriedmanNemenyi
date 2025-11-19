@@ -451,11 +451,3 @@ save.dataframes.to.excel <- function(data.list, file.name) {
   message("The Excel file '", file.name, "' has been saved successfully.")
   cat("\n")
 }
-
-
-
-
-##############################################################################
-#
-##############################################################################
-
