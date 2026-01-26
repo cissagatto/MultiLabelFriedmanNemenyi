@@ -165,8 +165,6 @@ friedman.nemenyi <- function(data, save, measure.name,
 }
 
 
-
-
 #' Generate Boxplots of Method Performance
 #'
 #' This function generates boxplots for the performance of various methods
@@ -275,6 +273,208 @@ generate.boxplots.2 <- function(data, methods, save.dir) {
   print(boxplot)
 }
 
+
+#' Perform Friedman Test and Nemenyi Post-Hoc Analysis with Output Saving
+#'
+#' This function performs a Friedman test to evaluate statistically significant
+#' differences among multiple methods. If significant differences are detected,
+#' a Nemenyi post-hoc test is applied. The function automatically generates and
+#' saves summary statistics, a Critical Difference (CD) plot, a p-values plot,
+#' and CSV files with the results.
+#'
+#' The output plots can be generated either as vector-based PDF files or as
+#' rasterized PNG images. Using PNG is recommended when dealing with a large
+#' number of methods, as it significantly reduces file size and improves
+#' compilation performance in LaTeX/Overleaf environments.
+#'
+#' @param data A data frame where each row represents a method and each column
+#'   represents an observation or measurement.
+#'
+#' @param save A character string specifying the directory where output files
+#'   will be saved.
+#'
+#' @param measure.name A character string used as the base name for all output
+#'   files.
+#'
+#' @param width Numeric value specifying the width of the output plots (in inches).
+#'
+#' @param height Numeric value specifying the height of the output plots (in inches).
+#'
+#' @param cex Numeric value controlling the size of text elements in the plots.
+#'
+#' @param device Character string indicating the graphics device to be used for
+#'   the plots. Possible values are \code{"pdf"} (vector graphics, default) and
+#'   \code{"png"} (raster graphics).
+#'
+#' @param dpi Numeric value specifying the resolution (dots per inch) for PNG
+#'   output. This parameter is only used when \code{device = "png"}.
+#'
+#' @details
+#' The function generates the following output files:
+#' \itemize{
+#'   \item A CSV file containing the Friedman test statistics.
+#'   \item A CSV file containing the Nemenyi post-hoc difference matrix.
+#'   \item A Critical Difference (CD) plot comparing the average ranks of the methods.
+#'   \item A p-values plot visualizing pairwise post-hoc comparisons.
+#' }
+#'
+#' When \code{device = "pdf"}, plots are saved as vector graphics using
+#' \code{useDingbats = FALSE} to ensure compatibility with LaTeX compilers.
+#' When \code{device = "png"}, plots are rasterized at the specified resolution,
+#' producing significantly smaller files for complex CD plots.
+#'
+#' @return
+#' A data frame with the following columns:
+#' \describe{
+#'   \item{ChiSquare}{Chi-square statistic from the Friedman test.}
+#'   \item{pValue}{P-value associated with the Friedman test.}
+#'   \item{Method}{Name of the statistical test used.}
+#'   \item{CriticalDifference}{Critical Difference value from the Nemenyi test.}
+#'   \item{Result}{Textual interpretation of statistical significance.}
+#' }
+#'
+#' @seealso
+#' \code{\link{friedmanTest}}, \code{\link{nemenyiTest}}, \code{\link{plotCD}},
+#' \code{\link{plotPvalues}}
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage with PNG output (recommended for Overleaf)
+#' result <- friedman.nemenyi.new(
+#'   data = my_data,
+#'   save = "output_dir",
+#'   measure.name = "my_measure",
+#'   width = 14,
+#'   height = 7,
+#'   cex = 2,
+#'   device = "png",
+#'   dpi = 150
+#' )
+#'
+#' # Example usage with PDF output
+#' result <- friedman.nemenyi.new(
+#'   data = my_data,
+#'   save = "output_dir",
+#'   measure.name = "my_measure"
+#' )
+#' }
+#'
+#' @export
+friedman.nemenyi.new <- function(
+    data,
+    save,
+    measure.name,
+    width = 7,
+    height = 5,
+    cex = 1.2,
+    device = c("pdf", "png"),
+    dpi = 150
+) {
+  
+  device <- match.arg(device)
+  
+  # Helper to open the correct graphics device
+  open_device <- function(filename, width, height) {
+    if (device == "pdf") {
+      pdf(
+        filename,
+        width = width,
+        height = height,
+        useDingbats = FALSE
+      )
+    } else {
+      png(
+        filename,
+        width = width * dpi,
+        height = height * dpi,
+        res = dpi
+      )
+    }
+  }
+  
+  # Perform the Friedman test
+  fr <- friedmanTest(data)
+  ne <- nemenyiTest(data, alpha = 0.05)
+  
+  ext <- ifelse(device == "pdf", "pdf", "png")
+  
+  # ---- CD Plot ----
+  cd.plot.file <- file.path(
+    save,
+    paste0(measure.name, "-CD-plot.", ext)
+  )
+  
+  open_device(cd.plot.file, width, height)
+  plotCD(data, alpha = 0.05, cex = cex)
+  dev.off()
+  gc()
+  
+  # Extract relevant statistics
+  ChiSquare <- fr$statistic
+  pValue <- fr$p.value
+  Method <- fr$method
+  CriticalDifference <- ne$statistic
+  
+  # Determine significance
+  Result <- ifelse(
+    pValue < 0.05,
+    "Methods are significantly different",
+    "Methods are not significantly different"
+  )
+  
+  # Compile results into a data frame
+  results.df <- data.frame(
+    ChiSquare,
+    pValue,
+    Method,
+    CriticalDifference,
+    Result,
+    stringsAsFactors = FALSE
+  )
+  
+  # ---- p-values Plot ----
+  if (!is.null(ne$diff.matrix) && nrow(ne$diff.matrix) > 0) {
+    
+    p.values.plot.file <- file.path(
+      save,
+      paste0(measure.name, "-pValues-plot.", ext)
+    )
+    
+    open_device(p.values.plot.file, 10, 6)
+    print(
+      plotPvalues(
+        ne$diff.matrix,
+        show.pvalue = TRUE,
+        font.size = 2
+      )
+    )
+    dev.off()
+    gc()
+    
+  } else {
+    warning(
+      "The difference matrix is empty; no p-values plot will be generated."
+    )
+  }
+  
+  # ---- Save CSV outputs ----
+  results.file <- file.path(
+    save,
+    paste0(measure.name, "-results.csv")
+  )
+  write.csv(results.df, results.file, row.names = FALSE)
+  
+  diff.matrix.file <- file.path(
+    save,
+    paste0(measure.name, "-diff-matrix.csv")
+  )
+  write.csv(ne$diff.matrix, diff.matrix.file, row.names = FALSE)
+  
+  message("Results have been saved to: ", save)
+  cat("\n")
+  
+  return(results.df)
+}
 
 
 

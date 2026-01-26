@@ -62,12 +62,27 @@ if(dir.exists(save)==FALSE){dir.create(save)}
 
 ranking = generate.ranking(data = clp)
 res.data = data.frame(ranking$rank.average.1) 
+
+# old version
 res.fn = friedman.nemenyi(data = res.data , 
                           save = save,
                           measure.name = "clp",
                           width = 60, 
                           height = 30,
                           cex=5.5)
+# new version
+friedman.nemenyi.new(
+  data = res.data,
+  save = save,
+  measure.name = "clp",
+  width = 14,
+  height = 7,
+  cex = 2,
+  device = "png",
+  dpi = 150
+)
+
+                          
 ```
 
 **For Measures with the best value equal to 1**

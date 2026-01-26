@@ -68,23 +68,39 @@ library(MultiLabelFriedmanNemenyi)
 ##############################################################################
 
 setwd(FolderRoot)
-clp = data.frame(read.csv("~/MultiLabelFriedmanNemenyi/Data/clp.csv"))
+clp = data.frame(read.csv("~/MultiLabelFriedmanNemenyi/data/clp.csv"))
 clp = clp[,-1]
 
 df_res.mes <- fn.measures()
 filtered_res.mes <- filter(df_res.mes, names == "clp")
 
+FolderResults = "~/MultiLabelFriedmanNemenyi/results"
+if(dir.exists(FolderResults)==FALSE){dir.create(FolderResults)}
+
 save = paste(FolderResults, "/clp", sep="")
 if(dir.exists(save)==FALSE){dir.create(save)}
 
 ranking = generate.ranking(data = clp)
-res.data = data.frame(ranking$rank.average.1) 
+res.data = data.frame(ranking$rank.average.1)
+
 res.fn = friedman.nemenyi(data = res.data , 
                           save = save,
                           measure.name = "clp",
                           width = 60, 
                           height = 30,
                           cex=5.5)
+
+res = friedman.nemenyi.new(
+  data = res.data,
+  save = save,
+  measure.name = "clp",
+  width = 7,
+  height = 4,
+  cex = 1.4,
+  device = "pdf"
+)
+
+
 
 
 ##############################################################################
