@@ -2,6 +2,7 @@
 
 export(fn.measures)
 export(friedman.nemenyi)
+export(friedman.nemenyi.new)
 export(generate.boxplots.1)
 export(generate.boxplots.2)
 export(generate.rank.again)
